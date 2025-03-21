@@ -1,17 +1,6 @@
 // src/models/project.rs
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc, NaiveDateTime};
-
-// Helper for datetime conversion
-pub(crate) trait DateTimeHelper {
-    fn to_utc_datetime(self) -> DateTime<Utc>;
-}
-
-impl DateTimeHelper for NaiveDateTime {
-    fn to_utc_datetime(self) -> DateTime<Utc> {
-        DateTime::from_naive_utc_and_offset(self, Utc)
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Project {
@@ -19,8 +8,8 @@ pub struct Project {
     pub name: String,
     pub description: Option<String>,
     pub owner_id: i32,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 // Payload for creating a new project

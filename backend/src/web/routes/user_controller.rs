@@ -149,7 +149,7 @@ pub async fn api_user_login(
     .fetch_one(&pool)
     .await;
 
-    match result {
+    match result {api_user_login
         Ok(record) => {
             if payload.email == record.email && payload.password == record.password {
                 // Get environment variables with fallbacks for development
