@@ -73,3 +73,5 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO document_permissions(document_id, user_id, role)
 VALUES(1, 1, 'owner')
 ON CONFLICT (document_id, user_id) DO UPDATE SET role = 'owner';
+
+-- Add project here
