@@ -23,7 +23,7 @@ fn get_user_id_from_cookie(cookies: &Cookies) -> Option<i32> {
     })
 }
 
-async fn fetch_projects(cookies: Cookies, Extension(pool): Extension<PgPool>) -> impl IntoResponse {
+async fn get_project(cookies: Cookies, Extension(pool): Extension<PgPool>) -> impl IntoResponse {
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
