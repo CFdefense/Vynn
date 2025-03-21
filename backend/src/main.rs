@@ -42,6 +42,10 @@ async fn main() {
     */
     let cors = CorsLayer::new()
         .allow_origin("http://localhost:5173".parse::<HeaderValue>().unwrap())
+        .allow_origin("http://localhost:5174".parse::<HeaderValue>().unwrap())
+        .allow_origin("http://localhost:5175".parse::<HeaderValue>().unwrap())
+        .allow_origin("http://localhost:5176".parse::<HeaderValue>().unwrap())
+        .allow_origin("http://localhost:5177".parse::<HeaderValue>().unwrap())
         .allow_methods([
             Method::GET,
             Method::POST,
@@ -64,6 +68,7 @@ async fn main() {
     */
     let user_api_routes = web::routes::user_controller::user_routes();
     let doc_api_routes = web::routes::doc_controller::doc_routes();
+    let proj_api_routes = web::routes::proj_controller::routes();
 
     let cookie_layer = CookieManagerLayer::new();
 
@@ -71,6 +76,7 @@ async fn main() {
         .merge(web::routes::db_controller::db_routes())
         .nest("/api", user_api_routes) // Merge routes from user_controller,  any routes defined in user controller are now part of the Axum application.
         .nest("/api/document", doc_api_routes) // Merge routes from document_controller
+        .merge(proj_api_routes) // Merge routes from project_controller
         .layer(Extension(pool)) // Make the pool available to all handlers,Attachs the PgPool as an Axum Extension
         .layer(middleware::map_response(main_response_mapper))
         .layer(cookie_layer)

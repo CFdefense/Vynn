@@ -36,8 +36,8 @@
                 // Login successful
                 console.log("Login Success");
                 
-                // Redirect to homepage 
-                window.location.href = '/';
+                // Redirect directly to projects page instead of homepage
+                window.location.href = '/projects';
             } else {
                 // Login failed
                 errorMessage = 'Invalid email or password';
@@ -73,7 +73,8 @@
                     type="email" 
                     required 
                     bind:value={email}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="you@example.com"
                 />
             </div>
@@ -86,7 +87,8 @@
                     type="password" 
                     required 
                     bind:value={password}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="••••••••"
                 />
             </div>

@@ -40,11 +40,11 @@ class SignupPayload {
 }
 
 // Function for attempting signup on POST API
-export async function attempt_signup(signup_input: Signup): Promise<boolean> {
+export async function attempt_signup(signup_input: Signup): Promise<{ success: boolean, message?: string }> {
     // Check if passwords match and make new payload if they do
     let signup_payload;
     if (signup_input.password_one != signup_input.password_two) {
-        return false;
+        return { success: false, message: "Passwords do not match" };
     } else {
         signup_payload = new SignupPayload(signup_input.name, signup_input.email, signup_input.password_one);
     }
@@ -61,19 +61,48 @@ export async function attempt_signup(signup_input: Signup): Promise<boolean> {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(signup_payload),
+            credentials: 'include'
         });
 
         // Check Response
         if(response.ok) {
-            return true;
+            return { success: true };
         } else {
-            console.error('Login failed with status:', response.status);
-            const errorText = await response.text();
-            console.error('Error response:', errorText);
-            return false;
+            console.error('Signup failed with status:', response.status);
+            let errorMessage = 'Failed to sign up';
+            
+            try {
+                const errorData = await response.json();
+                if (errorData && errorData.error) {
+                    errorMessage = errorData.error;
+                }
+            } catch {
+                // If we can't parse JSON, try to get text
+                try {
+                    const errorText = await response.text();
+                    if (errorText) errorMessage = errorText;
+                } catch {
+                    // If all else fails, use a generic message based on status
+                    if (response.status === 409) {
+                        errorMessage = "Email already exists";
+                    } else if (response.status === 400) {
+                        errorMessage = "Invalid signup data";
+                    }
+                }
+            }
+            
+            console.error('Error response:', errorMessage);
+            return { success: false, message: errorMessage };
         }
     } catch(error) {
-        console.error("Login request error:", error);
-        return false;
+        console.error("Signup request error:", error);
+        // More specific error message for network issues
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            return { 
+                success: false, 
+                message: "Cannot connect to the server. Please make sure the backend is running at http://localhost:3001."
+            };
+        }
+        return { success: false, message: `Connection error: ${error.message || "Please try again"}` };
     }
 }

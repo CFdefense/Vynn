@@ -20,7 +20,10 @@ CREATE TABLE users (
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) DEFAULT 'Untitled Project' NOT NULL,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE
+    description TEXT,
+    owner_id INT REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create documents table

@@ -20,18 +20,18 @@
             // Call Post API to try to login
             let result = await attempt_signup(login_payload);
 
-            if (result) {
-                // Login successful
+            if (result.success) {
+                // Signup successful
                 console.log("Signup Success");
                 // Redirect to login page
                 window.location.href = '/login';
             } else {
                 // signup failed
-                errorMessage = 'Bad Signup Information';
+                errorMessage = result.message || 'Bad Signup Information';
             }
         } catch (error) {
-            errorMessage = 'An error occurred during login';
-            console.error('Login error:', error);
+            errorMessage = 'An error occurred during signup';
+            console.error('Signup error:', error);
         } finally {
             isLoading = false;
         }
@@ -60,7 +60,8 @@
                     type="text" 
                     required 
                     bind:value={name}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="John Doe"
                 />
             </div>
@@ -73,7 +74,8 @@
                     type="email" 
                     required 
                     bind:value={email}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="you@example.com"
                 />
             </div>
@@ -86,7 +88,8 @@
                     type="password" 
                     required 
                     bind:value={password}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="••••••••"
                 />
             </div>
@@ -99,7 +102,8 @@
                     type="password" 
                     required 
                     bind:value={confirmPassword}
-                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    class="mt-1 block w-full px-3 py-2 bg-[#0F172A] border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white"
+                    style="color: white !important;"
                     placeholder="••••••••"
                 />
             </div>

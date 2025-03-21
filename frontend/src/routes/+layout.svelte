@@ -9,10 +9,15 @@
 	// Can import other global components here such as a Navbar, Footer, etc, 
 	// things we want to be on every page
 	import '../app.css';
+	import Navbar from '../components/Navbar.svelte';
 
 	// Define the props for the layout component
 	let { children } = $props();
 </script>
 
+<Navbar />
+
 <!-- Renders the current page -->
-{@render children()}
+<div class="min-h-screen bg-[#0A1721]">
+	{@render children()}
+</div>

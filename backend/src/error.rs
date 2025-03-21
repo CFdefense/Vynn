@@ -16,10 +16,12 @@ pub enum Error {
     UserNotFoundError,
     UserCreationError,
     LoginFailError,
+    AuthError,
 
     // Document Errors
     DocumentNotFoundError,
     DocumentUpdateError,
+    DocumentCreationError,
     
     // General Errors
     InvalidRequestFormatError,
@@ -51,6 +53,8 @@ impl IntoResponse for Error {
             Self::DocumentUpdateError => (StatusCode::INTERNAL_SERVER_ERROR, "UNHANDLED_CLIENT_ERROR").into_response(),
             Self::EmailAlreadyExistsError => (StatusCode::CONFLICT, "EMAIL_ALREADY_EXISTS").into_response(),
             Self::DatabaseError => (StatusCode::INTERNAL_SERVER_ERROR, "DATABASE_ERROR").into_response(),
+            Self::AuthError => (StatusCode::UNAUTHORIZED, "AUTHENTICATION_REQUIRED").into_response(),
+            Self::DocumentCreationError => (StatusCode::INTERNAL_SERVER_ERROR, "DOCUMENT_CREATION_ERROR").into_response(),
         }
     }
 }
