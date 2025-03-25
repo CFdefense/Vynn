@@ -23,10 +23,9 @@ import {
     delete_project,
     get_recent_projects,
     search_projects,
-    duplicate_project,
-    LoadingStatus,
-    ApiResponse
+    duplicate_project
 } from './drive';
+import type { LoadingStatus, ApiResponse } from './drive';
 
 // Store interface for projects
 interface ProjectStore {
