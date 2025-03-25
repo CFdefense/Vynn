@@ -297,5 +297,159 @@ export async function create_project_document(
     }
 }
 
+// Enhanced loading status type
+export type LoadingStatus = 'idle' | 'loading' | 'success' | 'error';
+
+// Response wrapper to include loading status and error information
+export interface ApiResponse<T> {
+    data: T | null;
+    status: LoadingStatus;
+    error?: string;
+}
+
+// Function to search projects by name
+export async function search_projects(searchTerm: string): Promise<ApiResponse<Project[]>> {
+    try {
+        console.log(`Searching projects with term: "${searchTerm}"`);
+        
+        // First load all projects
+        const allProjects = await load_projects();
+        
+        // If no search term, return all projects
+        if (!searchTerm.trim()) {
+            return {
+                data: allProjects,
+                status: 'success'
+            };
+        }
+        
+        // Filter projects by name (case insensitive)
+        const searchTermLower = searchTerm.toLowerCase();
+        const filteredProjects = allProjects.filter(project => 
+            project.name.toLowerCase().includes(searchTermLower) || 
+            (project.description && project.description.toLowerCase().includes(searchTermLower))
+        );
+        
+        console.log(`Found ${filteredProjects.length} projects matching "${searchTerm}"`);
+        
+        return {
+            data: filteredProjects,
+            status: 'success'
+        };
+    } catch (error) {
+        console.error('Error searching projects:', error);
+        return {
+            data: null,
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+    }
+}
+
+// Function to get recent projects (sorted by updated_at)
+export async function get_recent_projects(limit: number = 5): Promise<ApiResponse<Project[]>> {
+    try {
+        console.log(`Loading ${limit} recent projects`);
+        
+        // Load all projects
+        const allProjects = await load_projects();
+        
+        // Sort by updated_at (most recent first)
+        const sortedProjects = [...allProjects].sort((a, b) => 
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+        
+        // Take only the requested number of projects
+        const recentProjects = sortedProjects.slice(0, limit);
+        
+        return {
+            data: recentProjects,
+            status: 'success'
+        };
+    } catch (error) {
+        console.error('Error loading recent projects:', error);
+        return {
+            data: null,
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+    }
+}
+
+// Function to check if the user has access to a project (without loading all data)
+export async function check_project_access(projectId: number): Promise<boolean> {
+    try {
+        console.log(`Checking access to project ${projectId}`);
+        
+        // Use the correct backend API URL
+        const apiUrl = `http://localhost:3001/api/projects/${projectId}/access`;
+        
+        // Call HEAD API (just check access without loading data)
+        const response = await fetch(apiUrl, {
+            method: 'HEAD',
+            credentials: 'include'
+        });
+        
+        // If response is 200, user has access
+        return response.ok;
+    } catch (error) {
+        console.error('Error checking project access:', error);
+        return false;
+    }
+}
+
+// Function to duplicate a project
+export async function duplicate_project(
+    projectId: number, 
+    newName?: string
+): Promise<ApiResponse<Project>> {
+    try {
+        console.log(`Duplicating project ${projectId}`);
+        
+        // First, get the original project
+        const originalProject = await get_project(projectId);
+        if (!originalProject) {
+            throw new Error('Failed to load original project');
+        }
+        
+        // Create a new project based on the original
+        const copyName = newName || `Copy of ${originalProject.name}`;
+        const newProject = await create_project(new CreateProjectPayload(
+            copyName,
+            originalProject.description
+        ));
+        
+        if (!newProject) {
+            throw new Error('Failed to create duplicate project');
+        }
+        
+        // Get all documents from the original project
+        const originalDocuments = await get_project_documents(projectId);
+        
+        // Create copies of all documents in the new project
+        for (const doc of originalDocuments) {
+            await create_project_document(
+                newProject.id,
+                doc.name,
+                doc.content
+            );
+        }
+        
+        console.log(`Successfully duplicated project ${projectId} to new project ${newProject.id}`);
+        
+        return {
+            data: newProject,
+            status: 'success'
+        };
+    } catch (error) {
+        console.error('Error duplicating project:', error);
+        return {
+            data: null,
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error occurred'
+        };
+    }
+}
+
 // Import Document class from document.ts for type usage
 import { Document } from './document';
