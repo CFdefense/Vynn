@@ -12,12 +12,12 @@ use axum::response::Response;
 // Axum is a web framework for Rust (It is to rust what express is to node.js)
 use axum::{routing::get_service, Extension, Router};
 use dotenv::dotenv;
+use http::header::{HeaderName, HeaderValue};
+use http::Method;
 use std::net::SocketAddr; // Allows us to bind the backend to a specific port
 use tower_cookies::CookieManagerLayer;
 use tower_http::cors::CorsLayer; // Provides support for GET/POST/PUT/DELETE/PATCH/OPTIONS // Load .Env
 use tower_http::services::ServeDir;
-use http::header::{HeaderName, HeaderValue};
-use http::Method;
 
 use crate::db::pool::create_pool; // Import the connection pool
 

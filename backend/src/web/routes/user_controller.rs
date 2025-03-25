@@ -1,6 +1,6 @@
 // src/controllers/user_controller.rs
 // Request Handlers
-use axum::routing::{get, put, post};
+use axum::routing::{get, post, put};
 use axum::{
     extract::{Extension, Json, Path},
     Router,

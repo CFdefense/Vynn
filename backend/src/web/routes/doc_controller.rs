@@ -28,9 +28,9 @@ pub async fn api_get_document(
         Some(id) => id,
         None => return Err(Error::PermissionError),
     };
-    
+
     // need to ensure the user has permissions to view this document
-    let has_permission = check_document_permission(&pool, user_id, document_id, "editor").await?;
+    let has_permission = api_get_permissions(&pool, user_id, document_id, "editor").await?;
 
     if has_permission {
         let result = sqlx::query_as!(
@@ -47,7 +47,7 @@ pub async fn api_get_document(
         )
         .fetch_one(&pool)
         .await;
-    
+
         match result {
             Ok(document) => Ok(Json(document)),
             Err(_) => Err(Error::UserNotFoundError),
@@ -65,7 +65,7 @@ pub async fn api_create_document(
     Json(payload): Json<CreateDocumentPayload>,
 ) -> Result<Json<Document>> {
     println!("->> {:<12} - create_document", "HANDLER");
-    
+
     // get user_id from cookies
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
@@ -133,7 +133,7 @@ pub async fn api_create_document(
     }
 }
 
-async fn check_document_permission(
+async fn api_get_permissions(
     pool: &PgPool,
     user_id: i32,
     document_id: i32,
@@ -182,7 +182,7 @@ pub async fn api_update_document(
     };
 
     // Check if user has editor or owner permission
-    let has_permission = check_document_permission(&pool, user_id, document_id, "editor").await?;
+    let has_permission = api_get_permissions(&pool, user_id, document_id, "editor").await?;
 
     if !has_permission {
         return Err(Error::PermissionError);
@@ -214,8 +214,19 @@ pub async fn api_update_document(
     }
 }
 
+// Delete document from the database
+pub async fn api_delete_document(
+    cookies: Cookies,
+    Path(document_id): Path<i32>,
+    Extension(pool): Extension<PgPool>,
+) -> Result<Json<Value>> {
+    println!("->> {:<12} - api_delete_document", "HANDLER");
+
+    todo!()
+}
+
 /// Grant permission to a user for a document
-pub async fn grant_document_permission(
+pub async fn api_grant_permission(
     cookies: Cookies,
     Path(document_id): Path<i32>,
     Extension(pool): Extension<PgPool>,
@@ -230,7 +241,7 @@ pub async fn grant_document_permission(
         None => return Err(Error::PermissionError),
     };
 
-    let has_permission = check_document_permission(&pool, user_id, document_id, "owner").await?;
+    let has_permission = api_get_permissions(&pool, user_id, document_id, "owner").await?;
 
     if !has_permission {
         return Err(Error::PermissionError);
@@ -276,7 +287,7 @@ pub async fn get_document_users(
         None => return Err(Error::PermissionError),
     };
 
-    let permissions = check_document_permission(&pool, user_id, document_id, "viewer").await?;
+    let permissions = api_get_permissions(&pool, user_id, document_id, "viewer").await?;
 
     if !permissions {
         return Err(Error::PermissionError);
@@ -330,7 +341,7 @@ pub async fn update_document_permission(
     };
 
     // Check if user has owner permission
-    let has_permission = check_document_permission(&pool, user_id, document_id, "owner").await?;
+    let has_permission = api_get_permissions(&pool, user_id, document_id, "owner").await?;
 
     if !has_permission {
         return Err(Error::PermissionError);
@@ -362,12 +373,12 @@ pub async fn update_document_permission(
 }
 
 /// Remove a user's permission for a document
-pub async fn remove_document_permission(
+pub async fn delete_document_permission(
     cookies: Cookies,
     Path((document_id, target_user_id)): Path<(i32, i32)>,
     Extension(pool): Extension<PgPool>,
 ) -> Result<Json<Value>> {
-    println!("->> {:<12} - remove_document_permission", "HANDLER");
+    println!("->> {:<12} - delete_document_permission", "HANDLER");
 
     // get user_id from cookies
     let user_id = match get_user_id_from_cookie(&cookies) {
@@ -376,7 +387,7 @@ pub async fn remove_document_permission(
     };
 
     // Check if user has owner permission
-    let has_permission = check_document_permission(&pool, user_id, document_id, "owner").await?;
+    let has_permission = api_get_permissions(&pool, user_id, document_id, "owner").await?;
 
     if !has_permission {
         return Err(Error::PermissionError);
@@ -437,10 +448,10 @@ pub fn doc_routes() -> Router {
         .route("/:id", get(api_get_document))
         .route("/:id", post(api_update_document))
         .route("/:id/permissions", get(get_document_users))
-        .route("/:id/permissions", post(grant_document_permission))
+        .route("/:id/permissions", post(api_grant_permission))
         .route(
             "/:id/permissions/:user_id",
-            delete(remove_document_permission),
+            delete(delete_document_permission),
         )
         .route("/:id/permissions", put(update_document_permission))
 }

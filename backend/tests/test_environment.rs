@@ -10,9 +10,9 @@
 
 use anyhow::Result;
 use axum::http::response;
+use backend::result_to_string;
 use httpc_test::Client;
 use serde_json::json;
-use backend::result_to_string;
 
 #[tokio::test]
 async fn test_environment() -> Result<()> {

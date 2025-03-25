@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub struct Document {
@@ -16,12 +16,12 @@ pub struct CreateDocumentPayload {
     pub name: String,
     pub content: Option<String>,
     pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateDocumentPayload {
     pub name: String,
     pub content: Option<String>,
-    pub updated_at: NaiveDateTime
+    pub updated_at: NaiveDateTime,
 }
