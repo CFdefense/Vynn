@@ -184,14 +184,21 @@ async fn api_update_project(
     Path(id): Path<i32>,
     Extension(pool): Extension<PgPool>,
     Json(payload): Json<UpdateProjectPayload>,
-) -> Result<Json<Value>> {
+) -> impl IntoResponse {
     println!("->> {:<12} - api_update_project", "HANDLER");
 
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
-        None => return Err(Error::AuthError),
+        None => return (StatusCode::UNAUTHORIZED, "Not authenticated").into_response(),
     };
+
+    // Validate inputs
+    if let Some(name) = &payload.name {
+        if name.trim().is_empty() {
+            return (StatusCode::BAD_REQUEST, "Project name cannot be empty").into_response();
+        }
+    }
 
     // Get the current project first and verify ownership
     let current_project = sqlx::query!(
@@ -212,7 +219,7 @@ async fn api_update_project(
             let description = payload.description.or(project.description);
 
             // Now lets query to try to update
-            let result = match sqlx::query!(
+            match sqlx::query!(
                 r#"
                 UPDATE projects
                 SET name = $1, description = $2, updated_at = now()
@@ -225,25 +232,44 @@ async fn api_update_project(
                 user_id
             )
             .fetch_one(&pool)
-            .await;
-
-            // lets match the result of our updating result
-            match result {
-                Ok(response) => {
-                    // update went good return json of new values
-                    return Ok(Json(json!{
-                        ""
-                    }))
+            .await
+            {
+                Ok(row) => {
+                    if let Some(owner_id) = row.owner_id {
+                        let project = Project {
+                            id: row.id,
+                            name: row.name,
+                            description: row.description,
+                            owner_id,
+                            created_at: row.created_at.to_utc_datetime(),
+                            updated_at: row.updated_at.to_utc_datetime(),
+                        };
+                        Json(project).into_response()
+                    } else {
+                        (
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            "Invalid project data: missing owner_id",
+                        )
+                            .into_response()
+                    }
                 }
-                _ => {
-                    // update failed throw error
-                    return Err(Error::ProjectUpdateFailed)
-
+                Err(e) => {
+                    println!("Error updating project: {:?}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Failed to update project: {}", e),
+                    )
+                        .into_response()
                 }
             }
         }
-        _ => {
-            return Err(Error::ProjectNotFound)
+        Err(e) => {
+            println!("Error fetching project: {:?}", e);
+            (
+                StatusCode::NOT_FOUND,
+                "Project not found or you don't have access",
+            )
+                .into_response()
         }
     }
 }
@@ -252,36 +278,48 @@ async fn api_delete_project(
     cookies: Cookies,
     Path(id): Path<i32>,
     Extension(pool): Extension<PgPool>,
-) -> Result<Json<Value>> {
+) -> impl IntoResponse {
     println!("->> {:<12} - api_delete_project", "HANDLER");
 
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
-        None => return Err(Error::AuthError),
+        None => return (StatusCode::UNAUTHORIZED, "Not authenticated").into_response(),
     };
 
     // delete project make sure user has permissions to do so
-    let result = match sqlx::query!(
+    match sqlx::query!(
         r#"DELETE FROM projects WHERE id = $1 AND owner_id = $2 RETURNING id"#,
         id,
         user_id
     )
     .fetch_one(&pool)
-    .await;
-
-    match result {
-        Ok(response) => {
-            return Ok(Json(json!({
-                "result": {
-                        "success": true,
-                        "project_id": result.id
-                    }
-            })))
+    .await
+    {
+        Ok(_) => {
+            // Return 204 No Content for successful deletion
+            StatusCode::NO_CONTENT.into_response()
         }
-        _ => Err(Error::AuthError)
+        Err(e) => {
+            match e {
+                sqlx::Error::RowNotFound => {
+                    (
+                        StatusCode::NOT_FOUND,
+                        "Project not found or you don't have access",
+                    )
+                        .into_response()
+                }
+                _ => {
+                    println!("Error deleting project: {:?}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("Failed to delete project: {}", e),
+                    )
+                        .into_response()
+                }
+            }
+        }
     }
-
 }
 
 pub fn routes() -> Router {

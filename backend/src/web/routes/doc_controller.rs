@@ -11,6 +11,8 @@ use axum::{
 use serde_json::{json, Value};
 use sqlx::PgPool;
 use tower_cookies::Cookies;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
 
 // Helper function to extract user ID from auth cookie
 fn get_user_id_from_cookie(cookies: &Cookies) -> Option<i32> {
@@ -30,19 +32,48 @@ pub async fn api_get_document(
     cookies: Cookies,
     Path(document_id): Path<i32>,
     Extension(pool): Extension<PgPool>,
-) -> Result<Json<Document>> {
+) -> impl axum::response::IntoResponse {
     println!("->> {:<12} - get_document", "HANDLER");
 
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
-        None => return Err(Error::AuthError)
+        None => return (StatusCode::UNAUTHORIZED, Json(json!({
+            "error": "Not authenticated"
+        }))).into_response()
     };
 
+    // Check if document exists first
+    let doc_exists = sqlx::query!(
+        "SELECT EXISTS(SELECT 1 FROM documents WHERE id = $1) as exists",
+        document_id
+    )
+    .fetch_one(&pool)
+    .await;
+
+    if let Ok(result) = doc_exists {
+        if !result.exists.unwrap_or(false) {
+            // Document doesn't exist
+            return (StatusCode::NOT_FOUND, Json(json!({
+                "error": "Document not found"
+            }))).into_response();
+        }
+    }
+
     // Check if user has permission to access this document
-    let has_permission = check_document_permission(&pool, user_id, document_id, "viewer").await?;
-    if !has_permission {
-        return Err(Error::PermissionDeniedError);
+    match check_document_permission(&pool, user_id, document_id, "viewer").await {
+        Ok(has_permission) => {
+            if !has_permission {
+                return (StatusCode::FORBIDDEN, Json(json!({
+                    "error": "You don't have permission to access this document"
+                }))).into_response();
+            }
+        },
+        Err(_) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+                "error": "Failed to check document permissions"
+            }))).into_response();
+        }
     }
 
     let result = sqlx::query_as!(
@@ -61,8 +92,13 @@ pub async fn api_get_document(
     .await;
 
     match result {
-        Ok(document) => Ok(Json(document)),
-        Err(_) => Err(Error::DocumentNotFoundError),
+        Ok(document) => (StatusCode::OK, Json(document)).into_response(),
+        Err(e) => {
+            println!("Error fetching document: {:?}", e);
+            (StatusCode::NOT_FOUND, Json(json!({
+                "error": "Document not found"
+            }))).into_response()
+        },
     }
 }
 
@@ -72,13 +108,25 @@ pub async fn api_create_document(
     cookies: Cookies,
     Extension(pool): Extension<PgPool>,
     Json(mut payload): Json<CreateDocumentPayload>,
-) -> Result<Json<Document>> {
+) -> impl axum::response::IntoResponse {
+    use axum::http::StatusCode;
+    use axum::response::IntoResponse;
+    
     println!("->> {:<12} - create_document", "HANDLER");
+
+    // Validate inputs
+    if payload.name.trim().is_empty() {
+        return (StatusCode::BAD_REQUEST, Json(json!({
+            "error": "Document name cannot be empty"
+        }))).into_response();
+    }
 
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
-        None => return Err(Error::AuthError)
+        None => return (StatusCode::UNAUTHORIZED, Json(json!({
+            "error": "Not authenticated"
+        }))).into_response()
     };
 
     // Override the user_id in the payload with the authenticated user
@@ -101,14 +149,24 @@ pub async fn api_create_document(
     match result {
         Ok(record) => {
             // Also add owner permission
-            let _perm_result = sqlx::query!(
+            match sqlx::query!(
                 "INSERT INTO document_permissions (document_id, user_id, role)
                 VALUES ($1, $2, 'owner')",
                 record.id,
                 user_id
             )
             .execute(&pool)
-            .await;
+            .await {
+                Ok(_) => {
+                    // Permission granted successfully
+                },
+                Err(e) => {
+                    println!("Error granting document permission: {:?}", e);
+                    return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+                        "error": "Document created but failed to grant owner permission"
+                    }))).into_response();
+                }
+            }
 
             // Then fetch the document by id
             let document = sqlx::query_as!(
@@ -127,16 +185,22 @@ pub async fn api_create_document(
             .await;
 
             match document {
-                Ok(document) => Ok(Json(document)),
+                Ok(document) => (StatusCode::CREATED, Json(document)).into_response(),
                 Err(e) => {
-                    println!("Error fetching document: {:?}", e);
-                    Err(Error::DocumentNotFoundError)
+                    println!("Error fetching newly created document: {:?}", e);
+                    // Even though we couldn't fetch it, creation was successful
+                    (StatusCode::CREATED, Json(json!({
+                        "id": record.id,
+                        "message": "Document created successfully"
+                    }))).into_response()
                 }
             }
         }
         Err(e) => {
             println!("Error creating document: {:?}", e);
-            Err(Error::DocumentCreationError)
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+                "error": "Failed to create document"
+            }))).into_response()
         }
     }
 }
@@ -180,26 +244,66 @@ pub async fn api_update_document(
     Path(document_id): Path<i32>,
     Extension(pool): Extension<PgPool>,
     Json(payload): Json<UpdateDocumentPayload>,
-) -> Result<Json<Value>> {
+) -> impl axum::response::IntoResponse {
     println!("->> {:<12} - update_document", "HANDLER");
+
+    // Validate inputs
+    if payload.name.trim().is_empty() {
+        return (StatusCode::BAD_REQUEST, Json(json!({
+            "error": "Document name cannot be empty"
+        }))).into_response();
+    }
 
     // Get user ID from cookie
     let user_id = match get_user_id_from_cookie(&cookies) {
         Some(id) => id,
-        None => return Err(Error::AuthError)
+        None => return (StatusCode::UNAUTHORIZED, Json(json!({
+            "error": "Not authenticated"
+        }))).into_response()
     };
 
+    // Check if document exists
+    let doc_exists = sqlx::query!(
+        "SELECT EXISTS(SELECT 1 FROM documents WHERE id = $1) as exists",
+        document_id
+    )
+    .fetch_one(&pool)
+    .await;
+
+    if let Ok(result) = doc_exists {
+        if !result.exists.unwrap_or(false) {
+            // Document doesn't exist
+            return (StatusCode::NOT_FOUND, Json(json!({
+                "error": "Document not found"
+            }))).into_response();
+        }
+    } else {
+        return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+            "error": "Failed to check if document exists"
+        }))).into_response();
+    }
+
     // Check if user has permission to edit this document
-    let has_permission = check_document_permission(&pool, user_id, document_id, "editor").await?;
-    if !has_permission {
-        return Err(Error::PermissionDeniedError);
+    match check_document_permission(&pool, user_id, document_id, "editor").await {
+        Ok(has_permission) => {
+            if !has_permission {
+                return (StatusCode::FORBIDDEN, Json(json!({
+                    "error": "You don't have permission to edit this document"
+                }))).into_response();
+            }
+        },
+        Err(_) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+                "error": "Failed to check document permissions"
+            }))).into_response();
+        }
     }
 
     // Update document
     let result = sqlx::query!(
         "UPDATE documents
          SET name = $1, content = $2, updated_at = $3
-         WHERE id = $4 RETURNING id",
+         WHERE id = $4 RETURNING id, name, content, created_at, updated_at, user_id",
         payload.name,
         payload.content,
         payload.updated_at,
@@ -209,12 +313,24 @@ pub async fn api_update_document(
     .await;
 
     match result {
-        Ok(_) => Ok(Json(json!({
-            "result": {
-                "success": true
-            }
-        }))),
-        Err(_) => Err(Error::DocumentUpdateError),
+        Ok(row) => {
+            let document = Document {
+                id: row.id,
+                name: row.name,
+                content: row.content,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                user_id: row.user_id,
+            };
+            
+            (StatusCode::OK, Json(document)).into_response()
+        },
+        Err(e) => {
+            println!("Error updating document: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({
+                "error": "Failed to update document"
+            }))).into_response()
+        },
     }
 }
 
