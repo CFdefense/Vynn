@@ -10,14 +10,13 @@
 	// things we want to be on every page
 	import '../app.css';
 	import Navbar from '../components/Navbar.svelte';
-
-	// Define the props for the layout component
-	let { children } = $props();
+	import ToastContainer from '$lib/components/ToastContainer.svelte';
 </script>
 
 <Navbar />
+<ToastContainer />
 
 <!-- Renders the current page -->
 <div class="min-h-screen bg-[#0A1721]">
-	{@render children()}
+	<slot></slot>
 </div>
