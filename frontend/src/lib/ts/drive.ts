@@ -62,28 +62,17 @@ export class UpdateProjectPayload {
     }
 }
 
+// Import authenticated fetch utility
+import { get, post, put, del } from './authFetch';
+
 // Function to load all projects for the current user
 export async function load_projects(): Promise<Project[]> {
     try {
         console.log('Loading projects');
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects`;
+        // Use authenticated fetch
+        const projects = await get<Project[]>('/projects');
         
-        // Call GET API
-        const response = await fetch(apiUrl, {
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to load projects: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const projects: Project[] = await response.json();
         console.log(`Loaded ${projects.length} projects`);
         
         return projects;
@@ -98,23 +87,9 @@ export async function get_project(projectId: number): Promise<Project | null> {
     try {
         console.log(`Loading project with ID: ${projectId}`);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects/${projectId}`;
+        // Use authenticated fetch
+        const project = await get<Project>(`/projects/${projectId}`);
         
-        // Call GET API
-        const response = await fetch(apiUrl, {
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to load project: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const project: Project = await response.json();
         return project;
     } catch (error) {
         console.error('Error loading project:', error);
@@ -127,28 +102,9 @@ export async function create_project(payload: CreateProjectPayload): Promise<Pro
     try {
         console.log('Creating new project:', payload.name);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects`;
+        // Use authenticated fetch
+        const project = await post<Project>('/projects', payload);
         
-        // Call POST API
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to create project: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const project: Project = await response.json();
         console.log(`Created project with ID: ${project.id}`);
         
         return project;
@@ -163,28 +119,9 @@ export async function update_project(projectId: number, payload: UpdateProjectPa
     try {
         console.log(`Updating project with ID: ${projectId}`);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects/${projectId}`;
+        // Use authenticated fetch
+        const project = await put<Project>(`/projects/${projectId}`, payload);
         
-        // Call PUT API
-        const response = await fetch(apiUrl, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to update project: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const project: Project = await response.json();
         console.log(`Updated project: ${project.name}`);
         
         return project;
@@ -199,21 +136,8 @@ export async function delete_project(projectId: number): Promise<boolean> {
     try {
         console.log(`Deleting project with ID: ${projectId}`);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects/${projectId}`;
-        
-        // Call DELETE API
-        const response = await fetch(apiUrl, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to delete project: ${response.statusText}`);
-        }
+        // Use authenticated fetch
+        await del(`/projects/${projectId}`);
         
         console.log(`Project ${projectId} deleted successfully`);
         return true;
@@ -228,23 +152,9 @@ export async function get_project_documents(projectId: number): Promise<Document
     try {
         console.log(`Loading documents for project ID: ${projectId}`);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects/${projectId}/documents`;
+        // Use authenticated fetch
+        const documents = await get<Document[]>(`/projects/${projectId}/documents`);
         
-        // Call GET API
-        const response = await fetch(apiUrl, {
-            credentials: 'include'
-        });
-        
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to load project documents: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const documents: Document[] = await response.json();
         console.log(`Loaded ${documents.length} documents for project ${projectId}`);
         
         return documents;
@@ -263,31 +173,12 @@ export async function create_project_document(
     try {
         console.log(`Creating new document "${documentName}" in project ${projectId}`);
         
-        // Use the correct backend API URL
-        const apiUrl = `http://localhost:3001/api/projects/${projectId}/documents`;
-        
-        // Call POST API
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: documentName,
-                content: initialContent
-            }),
-            credentials: 'include'
+        // Use authenticated fetch
+        const document = await post<Document>(`/projects/${projectId}/documents`, {
+            name: documentName,
+            content: initialContent
         });
         
-        // Check response status
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.warn("API request failed:", response.status, response.statusText, errorText);
-            throw new Error(`Failed to create document: ${response.statusText}`);
-        }
-        
-        // Parse the response JSON
-        const document: Document = await response.json();
         console.log(`Created document with ID: ${document.id}`);
         
         return document;

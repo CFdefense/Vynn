@@ -2,47 +2,24 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { browser } from '$app/environment';
+    import { authStore, isAuthenticated } from '$lib/stores/authStore';
+    import { toastStore } from '$lib/stores/toastStore';
     
-    // This is a safer method to check if logged in that works with SSR
-    const isLoggedIn = () => {
-        // Always return false during server-side rendering
-        if (!browser) {
-            return false;
-        }
-        
-        try {
-            // Only check these in browser environment
-            const path = window.location.pathname;
-            // Automatically consider logged in on protected routes
-            if (path.startsWith('/projects') || 
-                path.startsWith('/drive') || 
-                path.startsWith('/document/')) {
-                return true;
-            }
-            
-            // Also check for auth cookie
-            if (document.cookie.includes('auth-token')) {
-                return true;
-            }
-            
-            return false;
-        } catch (e) {
-            // Always default to false if there's an error
-            console.error("Error in isLoggedIn:", e);
-            return false;
-        }
-    };
+    // Initialize auth state when component mounts
+    if (browser) {
+        authStore.initialize();
+    }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (browser) {
-            // Only run fetch in browser environment
-            fetch('http://localhost:3001/api/users/logout')
-                .then(() => {
-                    window.location.href = '/';
-                })
-                .catch(error => {
-                    console.error('Failed to logout', error);
-                });
+            const success = await authStore.logout();
+            
+            if (success) {
+                toastStore.success('Successfully logged out');
+                goto('/');
+            } else {
+                toastStore.error('Logout failed');
+            }
         }
     };
 </script>
@@ -53,7 +30,7 @@
             <a href="/" class="text-2xl font-bold text-[#E5E5E5]">Neovim for Writers</a>
         </div>
         <div class="flex space-x-3">
-            {#if browser && isLoggedIn()}
+            {#if browser && $isAuthenticated}
                 <a 
                     href="/drive" 
                     class="px-4 py-2 bg-[#2A3743] hover:bg-[#3A4753] rounded-md text-[#E5E5E5] transition-colors {$page.url.pathname === '/drive' ? 'bg-blue-600' : ''}"
