@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO user_profile_images (user_id, image_data, content_type) \n         VALUES ($1, $2, $3)\n         ON CONFLICT (user_id) \n         DO UPDATE SET image_data = $2, content_type = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Bytea",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "95ea3483486e5c73eb1ee3cd1637411d5530c815e79784bf8ce4c40640de9e2e"
+}
