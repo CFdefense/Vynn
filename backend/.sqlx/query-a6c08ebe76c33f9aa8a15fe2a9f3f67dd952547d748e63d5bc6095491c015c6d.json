@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE projects \n        SET name = $1, updated_at = CURRENT_TIMESTAMP\n        WHERE id = $2\n        RETURNING id, name, user_id, created_at, updated_at,is_trashed, is_starred\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_trashed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_starred",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "a6c08ebe76c33f9aa8a15fe2a9f3f67dd952547d748e63d5bc6095491c015c6d"
+}

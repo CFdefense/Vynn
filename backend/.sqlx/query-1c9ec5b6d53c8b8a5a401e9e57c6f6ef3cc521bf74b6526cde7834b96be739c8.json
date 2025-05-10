@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT 1 as number",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "number",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1c9ec5b6d53c8b8a5a401e9e57c6f6ef3cc521bf74b6526cde7834b96be739c8"
+}

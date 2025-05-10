@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT dp.project_id, p.name\n        FROM document_projects dp\n        JOIN projects p ON dp.project_id = p.id\n        WHERE dp.document_id = $1\n        LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "project_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "af1bba040050159e806028e8f67c07fa2bdcc48e6f250b09e4610caf821d9c98"
+}

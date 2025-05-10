@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, ai_credits",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "ai_credits",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "72c0b9e9d3578a59f9e4e55caa8cc00a1a8664e8b6d3c3fc48ec478229b3c9fc"
+}

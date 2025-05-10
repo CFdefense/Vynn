@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT p.id, p.name, p.user_id, p.created_at, p.updated_at, is_trashed, is_starred\n           FROM projects p\n           JOIN project_permissions pp ON p.id = pp.project_id\n           WHERE pp.user_id = $1 \n           AND pp.role IN ('editor', 'viewer')\n           AND COALESCE(p.is_trashed, false) = false",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_trashed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_starred",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "40df27224d82de0afbf7a8f4ef274cc314c52d63feb5a37c788823c7c2c4c7cd"
+}

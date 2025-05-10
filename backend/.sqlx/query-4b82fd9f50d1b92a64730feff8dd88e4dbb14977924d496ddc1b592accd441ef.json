@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            id, \n            session_id, \n            role AS \"role: MessageRole\",\n            content, \n            created_at\n        FROM writing_assistant_messages\n        WHERE session_id = $1\n        ORDER BY created_at ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "session_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "role: MessageRole",
+        "type_info": {
+          "Custom": {
+            "name": "message_role_enum",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistant"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4b82fd9f50d1b92a64730feff8dd88e4dbb14977924d496ddc1b592accd441ef"
+}

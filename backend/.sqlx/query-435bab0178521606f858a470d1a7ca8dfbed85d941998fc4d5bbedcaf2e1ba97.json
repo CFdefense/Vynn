@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH RankedMessages AS (\n            SELECT \n                session_id, \n                content,\n                ROW_NUMBER() OVER(PARTITION BY session_id ORDER BY created_at DESC) as rn\n            FROM writing_assistant_messages\n        )\n        SELECT \n            s.id,\n            s.user_id,\n            s.document_id,\n            s.title,\n            s.created_at,\n            s.updated_at,\n            rm.content AS last_message_content\n        FROM writing_assistant_sessions s\n        LEFT JOIN RankedMessages rm ON s.id = rm.session_id AND rm.rn = 1\n        WHERE s.user_id = $1\n        ORDER BY s.updated_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "document_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_message_content",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "435bab0178521606f858a470d1a7ca8dfbed85d941998fc4d5bbedcaf2e1ba97"
+}

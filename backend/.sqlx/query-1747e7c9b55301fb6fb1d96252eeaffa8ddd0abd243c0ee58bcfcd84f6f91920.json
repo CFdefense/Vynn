@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM user_keybindings \n         WHERE user_id = $1 AND command_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1747e7c9b55301fb6fb1d96252eeaffa8ddd0abd243c0ee58bcfcd84f6f91920"
+}

@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO writing_assistant_messages (session_id, role, content, created_at)\n        VALUES ($1, $2, $3, $4)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        {
+          "Custom": {
+            "name": "message_role_enum",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistant"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "30af9a87866360caebbbd14ea75e99dd7af5fb458a8056f5565d7f558363789c"
+}

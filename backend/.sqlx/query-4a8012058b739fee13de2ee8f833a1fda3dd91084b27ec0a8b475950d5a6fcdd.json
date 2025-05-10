@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET ai_credits = ai_credits - 1 WHERE id = $1 AND ai_credits > 0",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4a8012058b739fee13de2ee8f833a1fda3dd91084b27ec0a8b475950d5a6fcdd"
+}

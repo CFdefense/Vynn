@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT p.id, p.name, p.user_id, p.created_at, p.updated_at, p.is_starred, p.is_trashed\n           FROM projects p\n           JOIN project_permissions pp ON p.id = pp.project_id\n           WHERE pp.user_id = $1 AND p.is_starred = true AND p.is_trashed = false",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_starred",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_trashed",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "44245b6db54c79fccc9742b852b147749fd1b006c562c8bee119200076758145"
+}

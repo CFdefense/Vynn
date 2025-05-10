@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO user_keybindings (user_id, command_id, keybinding) \n         VALUES ($1, $2, $3)\n         ON CONFLICT (user_id, command_id) \n         DO UPDATE SET keybinding = $3\n         RETURNING user_id, command_id, keybinding",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "command_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "keybinding",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4b8f5df97547f197075b7ed95916e9b835c8718ec011a0e421e4093f45eb34ff"
+}

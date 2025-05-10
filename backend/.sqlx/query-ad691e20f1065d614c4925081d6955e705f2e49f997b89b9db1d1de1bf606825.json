@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO project_permissions (project_id, user_id, role)\n                VALUES ($1, $2, 'owner')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ad691e20f1065d614c4925081d6955e705f2e49f997b89b9db1d1de1bf606825"
+}

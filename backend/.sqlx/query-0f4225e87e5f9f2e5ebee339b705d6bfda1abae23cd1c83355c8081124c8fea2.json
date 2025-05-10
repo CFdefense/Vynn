@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT d.id, d.name, d.content, d.created_at, d.updated_at, d.user_id, d.is_starred, d.is_trashed\n        FROM documents d\n        JOIN document_permissions dp ON d.id = dp.document_id\n        WHERE dp.user_id = $1 AND d.is_trashed = true\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_starred",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "is_trashed",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "0f4225e87e5f9f2e5ebee339b705d6bfda1abae23cd1c83355c8081124c8fea2"
+}

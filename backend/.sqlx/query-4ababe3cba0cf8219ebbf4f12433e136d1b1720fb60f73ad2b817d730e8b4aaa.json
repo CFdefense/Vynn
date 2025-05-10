@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                UPDATE documents\n                SET embedding = $1, embedding_updated_at = $2\n                WHERE id = $3\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "Timestamptz",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4ababe3cba0cf8219ebbf4f12433e136d1b1720fb60f73ad2b817d730e8b4aaa"
+}

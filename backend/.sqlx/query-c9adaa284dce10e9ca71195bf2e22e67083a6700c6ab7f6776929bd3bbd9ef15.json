@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO document_permissions (document_id, user_id, role)\n                VALUES ($1, $2, 'owner')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c9adaa284dce10e9ca71195bf2e22e67083a6700c6ab7f6776929bd3bbd9ef15"
+}

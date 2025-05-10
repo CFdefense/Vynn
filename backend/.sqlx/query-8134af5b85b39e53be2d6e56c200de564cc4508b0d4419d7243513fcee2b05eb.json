@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE documents \n        SET is_trashed = true\n        WHERE id = $1;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8134af5b85b39e53be2d6e56c200de564cc4508b0d4419d7243513fcee2b05eb"
+}
