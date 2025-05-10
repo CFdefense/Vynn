@@ -1,0 +1,15 @@
+{
+  "db": "PostgreSQL",
+  "1a1c487b6153aea3a2219de14334cd3ca92b2d9af3273cfe32f64be2d6ffdbcd": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM documents WHERE id = $1"
+  }
+} 

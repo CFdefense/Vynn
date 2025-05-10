@@ -20,6 +20,7 @@
 		"@types/bootstrap": "^5.2.10",
 		"@types/diff": "^7.0.2",
 		"autoprefixer": "^10.4.17",
+		"dotenv": "^16.5.0",
 		"postcss": "^8.4.35",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",

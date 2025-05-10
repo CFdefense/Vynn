@@ -546,8 +546,11 @@ async fn api_delete_permissions(
 
     // If we're removing an owner and there's only one owner, prevent it
     if let (Ok(owners_count), Ok(Some(record))) = (&owners_count_result, &is_target_owner) {
-        if record.role == "owner" && owners_count.count.unwrap_or(0) <= 1 {
-            return Err(Error::PermissionError);
+        // Fix access to fields by properly unwrapping and accessing the data
+        if let (Some(role), Some(count)) = (&record.role, &owners_count.count) {
+            if role == "owner" && *count <= 1 {
+                return Err(Error::PermissionError);
+            }
         }
     }
 
