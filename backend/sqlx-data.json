@@ -11,5 +11,75 @@
       }
     },
     "query": "DELETE FROM documents WHERE id = $1"
+  },
+  "113746bfb3e6a9db1fdb4bfb0a7e8c1facd852016da9e78b69b977b7958fb41a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "ai_credits",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT ai_credits FROM users WHERE id = $1"
+  },
+  "4560c237741ce9d4166aecd669770b3360a3ac71e649b293efb88d92c3254068": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT id FROM users WHERE email = $1"
+  },
+  "7604affcdd65b9c56a690872ce0c8b9acb76c5d60f4d14e51a9d4968b0a2d397": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE users\n         SET name = $1, email = $2, password = $3\n         WHERE id = $4;"
+  },
+  "4cea99d08399da024c4a6416b4252276740232532dcf3203d064e403f5d64679": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Text",
+          "Timestamp",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE documents\n        SET name = $1, content = $2, updated_at = $3\n        WHERE id = $4"
   }
 } 
