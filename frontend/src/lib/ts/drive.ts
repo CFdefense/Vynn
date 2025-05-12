@@ -18,7 +18,7 @@
 */
 import { Document } from './document';
 
-const API_BASE_URL = process.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
 // Define and export the Project interface
 export interface Project {

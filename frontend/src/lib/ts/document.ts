@@ -28,7 +28,7 @@
 /
 */
 
-const API_BASE_URL = process.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || '';
 
 export class Document {
 	id: number;
