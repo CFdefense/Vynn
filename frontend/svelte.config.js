@@ -7,9 +7,9 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			// default options
-			pages: 'build',
-			assets: 'build',
+			// set output to match Render's expected path
+			pages: '.svelte-kit/output/client',
+			assets: '.svelte-kit/output/client',
 			fallback: 'index.html',
 			precompress: false,
 			strict: true
