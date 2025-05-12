@@ -19,6 +19,8 @@
 	} from '$lib/ts/project';
 	import { get_current_user } from '$lib/ts/user';
 
+	const API_BASE_URL = import.meta.env.PUBLIC_API_URL || ''; // Use the environment variable
+
 	export let isOpen = false;
 	export let title = '';
 	export let type: 'document' | 'project' = 'document';
@@ -52,7 +54,7 @@
 
 		try {
 			isSearching = true;
-			const response = await fetch(`http://localhost:3001/api/users/search?q=${encodeURIComponent(query)}`, {
+			const response = await fetch(`${API_BASE_URL}/api/users/search?q=${encodeURIComponent(query)}`, {
 				credentials: 'include'
 			});
 
