@@ -1,6 +1,6 @@
 ### Live @ [Vynn.app](https://vynn.app)
 
-# Vynn - A Tailored Neovim Experience for Writers
+# Vynn - A Tailored Neovim Experience to Writers
 
 A minimal, keyboard-driven document storage and processing solution that combines the speed and power of Neovim with the simplicity of modern writing tools and intelligent RAG agents to create a fast, customizable workspace for writers, researchers, and note takers.
 
